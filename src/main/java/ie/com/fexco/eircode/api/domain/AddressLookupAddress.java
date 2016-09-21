@@ -11,8 +11,22 @@ import javax.persistence.Table;
 
 import ie.com.fexco.eircode.api.base.to.BaseTO;
 
+/**
+ * @author Rodrigo M. Silva
+ * 
+ *         Represents a cache table data. Has all fileds returned from EirCode
+ *         API.
+ * 
+ *         See:
+ *         <URL>https://developers.alliescomputing.com/postcoder-web-api/address-lookup/premise
+ *         and
+ *         <URL>https://developers.alliescomputing.com/postcoder-web-api/address-lookup/eircode
+ *         For details.	
+ * 
+ *
+ */
 @Entity
-@Table(name="ADD_LKP_ADD")
+@Table(name = "ADD_LKP_ADD")
 public class AddressLookupAddress extends BaseTO
 {
 

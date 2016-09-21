@@ -3,6 +3,12 @@ package ie.com.fexco.eircode.api.base.to;
 import ie.com.fexco.eircode.api.base.interfaces.AdditionalParameters;
 import ie.com.fexco.eircode.api.util.EirCodeUtil;
 
+/**
+ * @author Rodrigo M. Silva
+ * 
+ * An abstract class that represents commons attributes.
+ *
+ */
 public abstract class BaseRequestTO extends BaseTO implements AdditionalParameters {
 
 	private static final long serialVersionUID = -6823786827472184308L;

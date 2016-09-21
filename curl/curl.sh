@@ -2,5 +2,5 @@
 
 for i in $(cat URLs.txt); do
     content="$(curl -s "$i")"
-    echo "$content" 
+    echo "$content" >> output.txt 
 done

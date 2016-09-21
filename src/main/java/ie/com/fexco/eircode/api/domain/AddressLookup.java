@@ -21,6 +21,15 @@ import javax.validation.constraints.NotNull;
 import ie.com.fexco.eircode.api.base.to.BaseTO;
 import ie.com.fexco.eircode.api.enums.StatusEnum;
 
+/**
+ * @author Rodrigo M. Silva
+ * 
+ *         Represents a cache table. Has the request informations (Requested
+ *         URL, Status {0 = Active or 1 = Inactive (to control cache), hits
+ *         (incremented on each request) and requested date. }
+ * 
+ *
+ */
 @Entity
 @Table(name = "ADD_LKP")
 public class AddressLookup extends BaseTO
