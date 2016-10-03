@@ -46,7 +46,7 @@ public class AddressLookupServiceImpl implements AddressLookupService
 	private static final String RGEO = "rgeo";
 
 	@Inject
-	public AddressLookupServiceImpl(final AddressLookupRepository addressLookupRequestRepository, ConnectionService connectionService, EirCodeConfigurationTO configuration, SyncLink syncLink)
+	public AddressLookupServiceImpl(final AddressLookupRepository addressLookupRequestRepository, ConnectionService connectionService, EirCodeConfigurationTO configuration)
 	{
 		this.addressLookupRequestRepository = addressLookupRequestRepository;
 		this.configuration = configuration;

@@ -22,7 +22,6 @@ import ie.com.fexco.eircode.api.service.ConnectionService;
 import ie.com.fexco.eircode.api.service.impl.AddressLookupServiceImpl;
 import ie.com.fexco.eircode.api.to.EirCodeConfigurationTO;
 import ie.com.fexco.eircode.api.to.response.AddressLookupResponseTO;
-import ie.com.fexco.eircode.api.util.SyncLink;
 import ie.com.fexco.eircode.api.util.TestUtil;
 
 @RunWith(SpringRunner.class)
@@ -35,8 +34,6 @@ public class AddressLookupServiceTest
 	@Autowired
 	private ConnectionService connectionService;
 	@Autowired
-	private SyncLink syncLink;
-	@Autowired
 	private EirCodeConfigurationTO configuration;
 
 	private AddressLookupService addressLookupService;
@@ -46,7 +43,7 @@ public class AddressLookupServiceTest
 	@Before
 	public void setUp() throws Exception
 	{
-		addressLookupService = new AddressLookupServiceImpl(addressLookupRepository, connectionService, configuration, syncLink);
+		addressLookupService = new AddressLookupServiceImpl(addressLookupRepository, connectionService, configuration);
 		gson = new Gson();
 	}
 
