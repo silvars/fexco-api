@@ -29,7 +29,6 @@ import ie.com.fexco.eircode.api.to.EirCodeConfigurationTO;
 import ie.com.fexco.eircode.api.to.request.AddressLookupRequestTO;
 import ie.com.fexco.eircode.api.to.response.AddressLookupResponseTO;
 import ie.com.fexco.eircode.api.util.EirCodeUtil;
-import ie.com.fexco.eircode.api.util.SyncLink;
 
 @Service
 @Validated
@@ -40,7 +39,6 @@ public class AddressLookupServiceImpl implements AddressLookupService
 	private final AddressLookupRepository addressLookupRequestRepository;
 	private final EirCodeConfigurationTO configuration;
 	private final ConnectionService connectionService;
-	private final SyncLink syncLink;
 
 	public static final String ADDRESS = "address";
 	private static final String ADDRESSGEO = "addressgeo";
@@ -53,7 +51,6 @@ public class AddressLookupServiceImpl implements AddressLookupService
 		this.addressLookupRequestRepository = addressLookupRequestRepository;
 		this.configuration = configuration;
 		this.connectionService = connectionService;
-		this.syncLink = syncLink;
 	}
 
 	@Override
@@ -66,7 +63,7 @@ public class AddressLookupServiceImpl implements AddressLookupService
 
 		try
 		{
-			return callAddress(poAddressLookupRequest, fullURL);
+			return call(poAddressLookupRequest, fullURL);
 		} catch (ConnectionException | AddressLookupException e)
 		{
 			throw e;
@@ -87,7 +84,7 @@ public class AddressLookupServiceImpl implements AddressLookupService
 
 		try
 		{
-			return callAddressgeo(poAddressLookupRequest, fullURL);
+			return call(poAddressLookupRequest, fullURL);
 		} catch (ConnectionException | AddressLookupException e)
 		{
 			throw e;
@@ -108,7 +105,7 @@ public class AddressLookupServiceImpl implements AddressLookupService
 
 		try
 		{
-			return callPosition(poAddressLookupRequest, fullURL);
+			return call(poAddressLookupRequest, fullURL);
 		} catch (ConnectionException | AddressLookupException e)
 		{
 			throw e;
@@ -129,7 +126,7 @@ public class AddressLookupServiceImpl implements AddressLookupService
 
 		try
 		{
-			return callRgeo(poAddressLookupRequest, fullURL);
+			return call(poAddressLookupRequest, fullURL);
 		} catch (ConnectionException | AddressLookupException e)
 		{
 			throw e;
@@ -139,7 +136,7 @@ public class AddressLookupServiceImpl implements AddressLookupService
 		}
 	}
 
-	private List<AddressLookupResponseTO> callAddress(AddressLookupRequestTO poAddressLookupRequest, final String psFullURL) throws ConnectionException, AddressLookupException
+	private List<AddressLookupResponseTO> call(AddressLookupRequestTO poAddressLookupRequest, final String psFullURL) throws ConnectionException, AddressLookupException
 	{
 
 		AddressLookup address = addressLookupRequestRepository.findByRequestURL(psFullURL);
@@ -148,8 +145,6 @@ public class AddressLookupServiceImpl implements AddressLookupService
 		{
 			try
 			{
-
-				syncLink.getLock().lock();
 
 				address = addressLookupRequestRepository.findByRequestURL(psFullURL);
 
@@ -181,177 +176,12 @@ public class AddressLookupServiceImpl implements AddressLookupService
 			} catch (Exception e)
 			{
 				throw new ConnectionException(e.getMessage(), e);
-			} finally
-			{
-				syncLink.getLock().unlock();
 			}
 
 		} else
 		{
 			return returnFromCache(address);
 		}
-	}
-
-	private List<AddressLookupResponseTO> callAddressgeo(AddressLookupRequestTO poAddressLookupRequest, final String psFullURL) throws ConnectionException, AddressLookupException
-	{
-
-		AddressLookup address = addressLookupRequestRepository.findByRequestURL(psFullURL);
-
-		if (address == null)
-		{
-			try
-			{
-
-				syncLink.getLock().lock();
-
-				address = addressLookupRequestRepository.findByRequestURL(psFullURL);
-
-				if (address != null)
-				{
-					return returnFromCache(address);
-				}
-
-				String json = connectionService.connect(psFullURL, poAddressLookupRequest.getFormat());
-
-				GsonBuilder builder = new GsonBuilder();
-				Gson gson = builder.create();
-
-				AddressLookupResponseTO[] addresses = gson.fromJson(json, AddressLookupResponseTO[].class);
-
-				Set<AddressLookupAddress> addressDB = EirCodeUtil.copyAddressProperties(addresses);
-
-				address = new AddressLookup(new Date(), psFullURL, StatusEnum.ACTIVE, 1, addressDB);
-
-				addressLookupRequestRepository.save(address);
-
-				LOGGER.info(" From the Service");
-
-				return Arrays.asList(addresses);
-
-			} catch (ConnectionException e)
-			{
-				throw e;
-			} catch (Exception e)
-			{
-				throw new ConnectionException(e.getMessage(), e);
-			} finally
-			{
-				syncLink.getLock().unlock();
-			}
-
-		} else
-		{
-			return returnFromCache(address);
-		}
-
-	}
-
-	private List<AddressLookupResponseTO> callPosition(AddressLookupRequestTO poAddressLookupRequest, final String psFullURL) throws ConnectionException, AddressLookupException
-	{
-
-		AddressLookup address = addressLookupRequestRepository.findByRequestURL(psFullURL);
-
-		if (address == null)
-		{
-			try
-			{
-
-				syncLink.getLock().lock();
-
-				address = addressLookupRequestRepository.findByRequestURL(psFullURL);
-
-				if (address != null)
-				{
-					return returnFromCache(address);
-				}
-
-				String json = connectionService.connect(psFullURL, poAddressLookupRequest.getFormat());
-
-				GsonBuilder builder = new GsonBuilder();
-				Gson gson = builder.create();
-
-				AddressLookupResponseTO[] addresses = gson.fromJson(json, AddressLookupResponseTO[].class);
-
-				Set<AddressLookupAddress> addressDB = EirCodeUtil.copyAddressProperties(addresses);
-
-				address = new AddressLookup(new Date(), psFullURL, StatusEnum.ACTIVE, 1, addressDB);
-
-				addressLookupRequestRepository.save(address);
-
-				LOGGER.info(" From the Service");
-
-				return Arrays.asList(addresses);
-
-			} catch (ConnectionException e)
-			{
-				throw e;
-			} catch (Exception e)
-			{
-				throw new ConnectionException(e.getMessage(), e);
-			} finally
-			{
-				syncLink.getLock().unlock();
-			}
-
-		} else
-		{
-			return returnFromCache(address);
-		}
-
-	}
-
-	private List<AddressLookupResponseTO> callRgeo(AddressLookupRequestTO poAddressLookupRequest, final String psFullURL) throws ConnectionException, AddressLookupException
-	{
-
-		AddressLookup address = addressLookupRequestRepository.findByRequestURL(psFullURL);
-
-		if (address == null)
-		{
-			try
-			{
-
-				syncLink.getLock().lock();
-
-				address = addressLookupRequestRepository.findByRequestURL(psFullURL);
-
-				if (address != null)
-				{
-					return returnFromCache(address);
-				}
-
-				String json = connectionService.connect(psFullURL, poAddressLookupRequest.getFormat());
-
-				GsonBuilder builder = new GsonBuilder();
-				Gson gson = builder.create();
-
-				AddressLookupResponseTO[] addresses = gson.fromJson(json, AddressLookupResponseTO[].class);
-
-				Set<AddressLookupAddress> addressDB = EirCodeUtil.copyAddressProperties(addresses);
-
-				address = new AddressLookup(new Date(), psFullURL, StatusEnum.ACTIVE, 1, addressDB);
-
-				addressLookupRequestRepository.save(address);
-
-				LOGGER.info(" From the Service");
-
-				return Arrays.asList(addresses);
-
-			} catch (ConnectionException e)
-			{
-				throw e;
-			} catch (Exception e)
-			{
-				throw new ConnectionException(e.getMessage(), e);
-			} finally
-			{
-				syncLink.getLock().unlock();
-			}
-
-		} else
-		{
-			return returnFromCache(address);
-		}
-
 	}
 
 	private List<AddressLookupResponseTO> returnFromCache(AddressLookup address)
